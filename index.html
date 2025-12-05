@@ -13,39 +13,55 @@
     <div class="container min-vh-100 d-flex align-items-center justify-content-center">
       <div class="card shadow-sm" style="max-width: 420px; width: 100%;">
         <div class="card-body">
-          <h1 class="card-title h3 mb-3 text-center">Simple Predictor</h1>
-          <p class="text-muted text-center mb-4">
-            Enter a number and send it to the backend. The server will respond with a calculated result.
-          </p>
+          <h1 class="card-title h3 mb-3 text-center">House Price Predictor</h1>
 
           <form
             hx-post="http://127.0.0.1:8000/predict"
             hx-target="#output"
             hx-swap="innerHTML"
           >
-            <div class="mb-3">
-              <label for="number" class="form-label">Number</label>
-              <input id="number" name="value" type="number" class="form-control" placeholder="Type a number">
+          <!-- location, title, bedrooms, bathrooms, indoor_surface_area_sqm, outdoor_surface_area_sqm -->
+          <div class="mb-3">
+            <label for="location" class="form-label">Location</label>
+            <input id="location" name="location" type="text" class="form-control" placeholder="Casares, Costa del Sol">
+          </div>
+
+          <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input id="title" name="title" type="text" class="form-control" placeholder="4 Bedroom Detached Villa">
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label for="bedroomCount" class="form-label">Bedroom Count</label>
+              <input id="bedroomCount" name="bedroomCount" type="number" class="form-control" placeholder="4">
             </div>
 
+            <div class="col">
+              <label for="bathroomCount" class="form-label">Bathroom Count</label>
+              <input id="bathroomCount" name="bathroomCount" type="number" class="form-control" placeholder="2">
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label for="indoorArea" class="form-label">Indoor Area</label>
+              <input id="indoorArea" name="indoorArea" type="number" class="form-control" placeholder="366">
+            </div>
+
+            <div class="col">
+              <label for="outdoorArea" class="form-label">Outdoor Area</label>
+              <input id="outdoorArea" name="outdoorArea" type="number" class="form-control" placeholder="350">
+            </div>
+          </div>
+
             <div class="d-grid gap-2 mb-3">
-              <button class="btn btn-primary" type="submit">Send to backend</button>
+              <button class="btn btn-primary " type="submit">Predict</button>
             </div>
           </form>
 
           <p id="output" class="fw-semibold text-center mb-3"></p>
 
-          <div class="d-grid">
-            <button
-              class="btn btn-outline-secondary"
-              hx-get="secondPage.html"
-              hx-target="body"
-              hx-swap="outerHTML"
-              type="button"
-            >
-              Go to second page
-            </button>
-          </div>
         </div>
       </div>
     </div>
