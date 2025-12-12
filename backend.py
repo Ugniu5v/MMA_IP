@@ -75,6 +75,8 @@ def predict():
     load_scalers()
     # Empty field value: None
 
+    # selectedFeatures = request.form.getlist("features")
+    # print(f"Selected features: {selectedFeatures}")
     # Not encoded data (strings)
     # location = request.form.get("location")
     # title = request.form.get("title")
