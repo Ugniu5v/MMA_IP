@@ -1,6 +1,9 @@
 from flask import Flask, request, send_from_directory
 from flask_cors import CORS
-from sklearn.linear_model import LinearRegression
+from sklearn import ensemble
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error, r2_score
+import numpy as np
 import pickle
 import os
 import pandas as pd
@@ -14,7 +17,14 @@ encoders = {}
 
 def train_model():
     global model
-    model = LinearRegression()
+    params = {
+        "n_estimators": 500,
+        "max_depth": 4,
+        "min_samples_split": 5,
+        "learning_rate": 0.01,
+        "loss": "squared_error",
+    }
+    model = ensemble.GradientBoostingRegressor(**params)
     if os.path.exists("df.pkl"):
         with open("df.pkl", "rb") as f:
             df = pickle.load(f)
@@ -27,7 +37,22 @@ def train_model():
             ]
         ]
         y = df["price"]
-        model.fit(X, y)
+        
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.1, random_state=4
+        )
+        
+        model.fit(X_train, y_train)
+        
+        y_pred = model.predict(X_test)
+        mse = mean_squared_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+        
+        print(f"Model Performance Metrics:")
+        print(f"MSE (Mean Squared Error): {mse:.2f}")
+        print(f"RMSE (Root Mean Squared Error): {np.sqrt(mse):.2f}")
+        print(f"R2 Score: {r2:.2f}")
+        
         with open("model.pkl", "wb") as f:
             pickle.dump(model, f)
 
