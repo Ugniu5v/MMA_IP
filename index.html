@@ -22,9 +22,22 @@
             hx-on::error="document.querySelector('#output').innerText = event.detail.xhr.responseText || 'Request failed';"
           >
           <!-- location, title, bedrooms, bathrooms, indoor_surface_area_sqm, outdoor_surface_area_sqm -->
-          <div class="mb-3">
+          <div class="mb-3 position-relative">
             <label for="location" class="form-label">Location</label>
-            <input id="location" name="location" type="text" class="form-control" placeholder="Casares, Costa del Sol" required>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              class="form-control"
+              placeholder="location...."
+              autocomplete="off"
+              required
+            >
+            <div
+              id="locationDropdown"
+              class="list-group position-absolute w-100 d-none"
+              style="max-height: 250px; overflow-y: auto; z-index: 1000;"
+            ></div>
           </div>
 
           <div class="mb-3">
@@ -79,7 +92,7 @@
 
     <!-- Features dropdown lists generation -->
     <script src="features.js"></script>
-
+    <script src="locations.js"></script>
     <!-- htmx -->
     <script src="https://unpkg.com/htmx.org@2.0.2"></script>
 </body>

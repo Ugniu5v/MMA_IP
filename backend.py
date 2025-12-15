@@ -356,6 +356,21 @@ def do_something(x):
 
     return float(prediction.ravel()[0])
 
+@app.route("/locations", methods=["GET"])
+def get_locations():
+    if not os.path.exists("encoders.pkl"):
+        return []
+
+    with open("encoders.pkl", "rb") as f:
+        encoders = pickle.load(f)
+
+    if "location" not in encoders:
+        return []
+
+    locations = encoders["location"].classes_.tolist()
+    locations.sort()
+
+    return locations
 
 
 if __name__ == "__main__":
