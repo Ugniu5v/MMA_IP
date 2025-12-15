@@ -40,9 +40,24 @@
             ></div>
           </div>
 
-          <div class="mb-3">
-            <label for="title" class="form-label">Title</label>
-            <input id="title" name="title" type="text" class="form-control" placeholder="4 Bedroom Detached Villa" required>
+          <div class="mb-3 position-relative">
+            <label for="title" class="form-label">Property Type</label>
+
+            <input
+              type="text"
+              id="title"
+              name="title"
+              class="form-control"
+              placeholder="type...."
+              autocomplete="off"
+              required
+            >
+
+            <div
+              id="titleDropdown"
+              class="dropdown-menu w-100 show"
+              style="max-height: 220px; overflow-y: auto; display: none;"
+            ></div>
           </div>
 
           <div class="row mb-3">
@@ -80,9 +95,7 @@
               <button class="btn btn-primary " type="submit">Predict</button>
             </div>
           </form>
-
-          <p id="output" class="fw-semibold text-center mb-3"></p>
-
+            <p id="output" class="fw-semibold text-center fs-5 text-success mb-3"></p>
         </div>
       </div>
     </div>
@@ -93,7 +106,28 @@
     <!-- Features dropdown lists generation -->
     <script src="features.js"></script>
     <script src="locations.js"></script>
+    <script src="titles.js"></script>
     <!-- htmx -->
     <script src="https://unpkg.com/htmx.org@2.0.2"></script>
+
+    <script>
+      document.body.addEventListener("htmx:afterSwap", function (evt) {
+        if (evt.target.id === "output") {
+          const raw = evt.target.innerText.trim();
+          const value = parseFloat(raw.replace(/,/g, ""));
+
+          if (!isNaN(value)) {
+            evt.target.innerText =
+              "Predicted price: " +
+              value.toLocaleString("lt-LT", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })
+              + " €"
+          }
+        }
+      });
+    </script>
+
 </body>
 </html>
