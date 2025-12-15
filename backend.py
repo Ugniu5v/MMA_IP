@@ -198,11 +198,19 @@ def train_model():
         mse = mean_squared_error(y_test, y_pred)
         r2 = r2_score(y_test, y_pred)
         
-        print(f"Model Performance Metrics:")
+        print(f"Model Performance Metrics TEST:")
         print(f"MSE (Mean Squared Error): {mse:.2f}")
         print(f"RMSE (Root Mean Squared Error): {np.sqrt(mse):.2f}")
         print(f"R2 Score: {r2:.2f}")
         
+        y_train_pred = model.predict(X_train)
+        train_mse = mean_squared_error(y_train, y_train_pred)
+        train_r2 = r2_score(y_train, y_train_pred)
+
+        print(f"Model Performance Metrics TRAIN:")
+        print(f"MSE (Mean Squared Error): {train_mse:.2f}")
+        print(f"RMSE (Root Mean Squared Error): {np.sqrt(train_mse):.2f}")
+        print(f"R2 Score: {train_r2:.2f}")
         with open("model.pkl", "wb") as f:
             pickle.dump(model, f)
 
