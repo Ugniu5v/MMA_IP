@@ -372,6 +372,21 @@ def get_locations():
 
     return locations
 
+@app.route("/titles", methods=["GET"])
+def get_titles():
+    if not os.path.exists("encoders.pkl"):
+        return []
+
+    with open("encoders.pkl", "rb") as f:
+        encoders = pickle.load(f)
+
+    if "title" not in encoders:
+        return []
+
+    titles = encoders["title"].classes_.tolist()
+    titles.sort()
+
+    return titles
 
 if __name__ == "__main__":
     app.run(debug=True, port=8000, host="127.0.0.1")
