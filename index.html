@@ -19,39 +19,40 @@
             hx-post="http://127.0.0.1:8000/predict"
             hx-target="#output"
             hx-swap="innerHTML"
+            hx-on::error="document.querySelector('#output').innerText = event.detail.xhr.responseText || 'Request failed';"
           >
           <!-- location, title, bedrooms, bathrooms, indoor_surface_area_sqm, outdoor_surface_area_sqm -->
           <div class="mb-3">
             <label for="location" class="form-label">Location</label>
-            <input id="location" name="location" type="text" class="form-control" placeholder="Casares, Costa del Sol">
+            <input id="location" name="location" type="text" class="form-control" placeholder="Casares, Costa del Sol" required>
           </div>
 
           <div class="mb-3">
             <label for="title" class="form-label">Title</label>
-            <input id="title" name="title" type="text" class="form-control" placeholder="4 Bedroom Detached Villa">
+            <input id="title" name="title" type="text" class="form-control" placeholder="4 Bedroom Detached Villa" required>
           </div>
 
           <div class="row mb-3">
             <div class="col">
               <label for="bedroomCount" class="form-label">Bedroom Count</label>
-              <input id="bedroomCount" name="bedroomCount" type="number" class="form-control" placeholder="4">
+              <input id="bedroomCount" name="bedroomCount" type="number" class="form-control" placeholder="4" min="0" step="1" required>
             </div>
 
             <div class="col">
               <label for="bathroomCount" class="form-label">Bathroom Count</label>
-              <input id="bathroomCount" name="bathroomCount" type="number" class="form-control" placeholder="2">
+              <input id="bathroomCount" name="bathroomCount" type="number" class="form-control" placeholder="2" min="0" step="1" required>
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col">
               <label for="indoorArea" class="form-label">Indoor Area</label>
-              <input id="indoorArea" name="indoorArea" type="number" class="form-control" placeholder="366">
+              <input id="indoorArea" name="indoorArea" type="number" class="form-control" placeholder="366" min="0" step="any" required>
             </div>
 
             <div class="col">
               <label for="outdoorArea" class="form-label">Outdoor Area</label>
-              <input id="outdoorArea" name="outdoorArea" type="number" class="form-control" placeholder="350">
+              <input id="outdoorArea" name="outdoorArea" type="number" class="form-control" placeholder="350" min="0" step="any" required>
             </div>
           </div>
 
