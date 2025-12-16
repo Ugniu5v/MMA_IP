@@ -18,7 +18,7 @@ class DinoV3FeatureExtractorBase():
         
 
 class DinoFeatureExtractor(nn.Module):
-    def __init__(self, features_out=[x for x in range(1, 12)]):
+    def __init__(self, features_out=[6, 12]):
         super().__init__()
         self.dinov3 = AutoModel.from_pretrained("facebook/dinov3-vits16-pretrain-lvd1689m")
         for param in self.dinov3.parameters():
@@ -34,14 +34,14 @@ class DinoFeatureExtractor(nn.Module):
         # n patch tokens = (input_size / 16)^2
         features = []
         for f in self.features_out:
-            CLS = hidden_states[f][:, 0, :].mean(1).unsqueeze(0)
+            CLS = hidden_states[f][:, 0, :]
             features.append(CLS)
-        features = torch.concatenate(features).mean(1)
+        features = torch.concatenate(features).mean(0)
         return features
 
 
 class ImageDataset(torch.utils.data.Dataset):
-    def __init__(self, dateset_dir, input_size=576):
+    def __init__(self, dateset_dir, input_size=256):
         self.dataset_dir = dateset_dir
         self.image_ids = os.listdir(dateset_dir)
         self.input_size = input_size
@@ -71,8 +71,9 @@ class ImageDataset(torch.utils.data.Dataset):
 
 def encode_images(image_dir, device, out_dir="image_features.csv"):
     model = DinoFeatureExtractor().to(device)
-    dataset = ImageDataset(image_dir)
+    dataset = ImageDataset(image_dir, input_size=256)
     with open(out_dir, "w") as file:
+        file.write(f"reference,{','.join(str(x) for x in range(384))}\n")
         for i in tqdm(range(len(dataset))):
             images, label = dataset[i]
             images = images.to(device)
@@ -80,8 +81,21 @@ def encode_images(image_dir, device, out_dir="image_features.csv"):
             file.write(f"{label},{','.join(str(x) for x in current_features.cpu().detach().tolist())}\n")      
 
 
+def prepare_image(image):
+    transform = v2.Compose([
+            v2.ToTensor(),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
+    return transform(image).unsqueeze(0)
+
     
 if __name__ == "__main__":
+    # dummy = torch.rand(4, 3, 400, 400)
+    # model = DinoFeatureExtractor()
+    # out = model(dummy)
+    # print(out.shape)
+
     argparser = argparse.ArgumentParser()
     argparser.add_argument("--device", type=str, required=True, choices=["cpu", "cuda"])
     args = argparser.parse_args()

@@ -7,6 +7,8 @@ import numpy as np
 import pickle
 import os
 import pandas as pd
+from PIL import Image
+from image_encoder import DinoFeatureExtractor, prepare_image
 
 app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
@@ -169,6 +171,8 @@ NUMERIC_FIELDS = [
     "outdoor_surface_area_sqm",
 ]
 
+image_feature_extractor = DinoFeatureExtractor()
+
 
 def train_model():
     global model
@@ -176,13 +180,18 @@ def train_model():
         "n_estimators": 500,
         "max_depth": 4,
         "min_samples_split": 5,
-        "learning_rate": 0.01,
+        "learning_rate": 0.03,
         "loss": "squared_error",
+        "verbose": 1
     }
     model = ensemble.GradientBoostingRegressor(**params)
-    if os.path.exists("df.pkl"):
+    if os.path.exists("df.pkl") and os.path.exists("image_features.csv"):
         with open("df.pkl", "rb") as f:
             df = pickle.load(f)
+            image_features = pd.read_csv("image_features.csv")
+            df = df.merge(image_features, on="reference", how="left")
+            df = df.fillna(0)
+            df = df.drop(columns=["reference"])
         if "price" not in df.columns:
             raise ValueError("Expected 'price' column in df.pkl")
         X = df.drop(columns=["price"])
@@ -192,7 +201,7 @@ def train_model():
             X, y, test_size=0.1, random_state=4
         )
         
-        print("startet fitting...")
+        print("started fitting...")
         model.fit(X_train, y_train)
         print("finished fitting")
         
@@ -246,7 +255,7 @@ def load_scalers():
         print("scalers.pkl is missing")
 
 
-def build_input_dataframe(form_data):
+def build_input_dataframe(form_data, photo_file=None):
     """Create a one-row DataFrame aligned with the trained model features."""
     if model is None or not hasattr(model, "feature_names_in_"):
         raise ValueError("Model is not loaded")
@@ -314,7 +323,20 @@ def build_input_dataframe(form_data):
             default_value = encoders.get(col).classes_[0] if col in encoders else 0
             row[col] = "Y" if col in mapped_feature_columns else default_value
 
-    return pd.DataFrame([row], columns=model.feature_names_in_)
+    if photo_file:
+        photo_file.stream.seek(0)
+        image = Image.open(photo_file.stream).convert("RGB")
+        image = prepare_image(image)
+        image_features = image_feature_extractor(image).cpu().numpy()
+        for col in range(384):
+            row[col] = image_features[col]
+    else:
+        for col in range(384):
+            row[col] = 0
+
+    column_names = model.feature_names_in_.tolist()
+    for col in range(384): column_names.append(col)
+    return pd.DataFrame([row], columns=column_names)
 
 
 @app.route("/")
@@ -329,7 +351,8 @@ def predict():
     load_encoders()
     load_scalers()
     try:
-        features_df = build_input_dataframe(request.form)
+        photo_file = request.files.get("photoInput")
+        features_df = build_input_dataframe(request.form, photo_file)
         result = do_something(features_df)
         formatted_result = f"{result:,.2f}"
         return str(formatted_result)
@@ -341,6 +364,7 @@ def do_something(x):
     global model
     global scalers
     global encoders
+    original = x.copy()
 
     if hasattr(model, "feature_names_in_"):
         x = x[model.feature_names_in_]

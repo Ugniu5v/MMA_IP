@@ -16,10 +16,10 @@
           <h1 class="card-title h3 mb-3 text-center">House Price Predictor</h1>
 
           <form
-            hx-post="http://127.0.0.1:8000/predict"
-            hx-target="#output"
-            hx-swap="innerHTML"
-            hx-on::error="document.querySelector('#output').innerText = event.detail.xhr.responseText || 'Request failed';"
+            id="predictForm"
+            action="http://127.0.0.1:8000/predict"
+            method="post"
+            enctype="multipart/form-data"
           >
           <!-- location, title, bedrooms, bathrooms, indoor_surface_area_sqm, outdoor_surface_area_sqm -->
           <div class="mb-3 position-relative">
@@ -87,7 +87,7 @@
           <div id="featuresContainer"></div>
 
           <div class="mb-3">
-            <label for"photoInput" class="form-label">Photo</label>
+            <label for="photoInput" class="form-label">Photo</label>
             <input id="photoInput" name="photoInput" type="file" class="form-control" placeholder="Choose a photo">
           </div>
 
@@ -107,24 +107,32 @@
     <script src="features.js"></script>
     <script src="locations.js"></script>
     <script src="titles.js"></script>
-    <!-- htmx -->
-    <script src="https://unpkg.com/htmx.org@2.0.2"></script>
-
     <script>
-      document.body.addEventListener("htmx:afterSwap", function (evt) {
-        if (evt.target.id === "output") {
-          const raw = evt.target.innerText.trim();
-          const value = parseFloat(raw.replace(/,/g, ""));
+      const form = document.getElementById("predictForm");
+      const output = document.getElementById("output");
 
-          if (!isNaN(value)) {
-            evt.target.innerText =
-              "Predicted price: " +
-              value.toLocaleString("lt-LT", {
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+        try {
+          const response = await fetch(form.action, {
+            method: "POST",
+            body: formData
+          });
+          const text = await response.text();
+          if (!response.ok) {
+            output.innerText = text || "Request failed";
+            return;
+          }
+          const value = parseFloat(text.replace(/,/g, ""));
+          output.innerText = isNaN(value)
+            ? text
+            : "Predicted price: " + value.toLocaleString("lt-LT", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
-              })
-              + " €"
-          }
+              }) + " €";
+        } catch (err) {
+          output.innerText = "Request failed";
         }
       });
     </script>
