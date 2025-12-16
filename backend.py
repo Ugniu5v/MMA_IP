@@ -191,7 +191,7 @@ def train_model():
             image_features = pd.read_csv("image_features.csv")
             df = df.merge(image_features, on="reference", how="left")
             df = df.fillna(0)
-            df = df.drop(columns=["reference"])
+            df = df.drop(columns=["reference"])  
         if "price" not in df.columns:
             raise ValueError("Expected 'price' column in df.pkl")
         X = df.drop(columns=["price"])
@@ -329,13 +329,12 @@ def build_input_dataframe(form_data, photo_file=None):
         image = prepare_image(image)
         image_features = image_feature_extractor(image).cpu().numpy()
         for col in range(384):
-            row[col] = image_features[col]
+            row[str(col)] = image_features[col]
     else:
         for col in range(384):
-            row[col] = 0
+            row[str(col)] = 0
 
     column_names = model.feature_names_in_.tolist()
-    for col in range(384): column_names.append(col)
     return pd.DataFrame([row], columns=column_names)
 
 
@@ -364,8 +363,8 @@ def do_something(x):
     global model
     global scalers
     global encoders
-    original = x.copy()
 
+    
     if hasattr(model, "feature_names_in_"):
         x = x[model.feature_names_in_]
 
@@ -379,6 +378,9 @@ def do_something(x):
         if col in x.columns:
             x[col] = scaler.transform(x[[col]]).ravel()
 
+    with open("debug.txt", "w") as file:
+        file.write(str(x.columns.tolist()))
+    
     prediction = model.predict(x)
 
     # Convert scaled prediction back to original price

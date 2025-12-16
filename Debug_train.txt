@@ -1,0 +1,7 @@
+Index(['location', 'price', 'title', 'bedrooms', 'bathrooms',
+       'indoor_surface_area_sqm', 'outdoor_surface_area_sqm',
+       'Access for people with reduced mobility',
+       'Air Conditioning Climate Control', 'Alarm System Security',
+       ...
+       '374', '375', '376', '377', '378', '379', '380', '381', '382', '383'],
+      dtype='object', length=538)
