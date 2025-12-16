@@ -1,3 +1,6 @@
 *.pdf
-*.csv
 *.pkl
+*.gz
+images
+images.tar
+properties.csv

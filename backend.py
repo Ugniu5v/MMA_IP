@@ -192,7 +192,9 @@ def train_model():
             X, y, test_size=0.1, random_state=4
         )
         
+        print("startet fitting...")
         model.fit(X_train, y_train)
+        print("finished fitting")
         
         y_pred = model.predict(X_test)
         mse = mean_squared_error(y_test, y_pred)
@@ -209,7 +211,6 @@ def train_model():
 
 def load_model():
     global model
-
     if not os.path.exists("model.pkl"):
         # async train??
         train_model()
